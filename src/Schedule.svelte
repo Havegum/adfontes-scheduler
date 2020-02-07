@@ -22,34 +22,40 @@ function getHeaders (shifts) {
 </script>
 
 
-<table>
-  <thead>
-    <tr>
-      <th>&nbsp;</th>
-      {#each days as day}
-        <th>{day}</th>
-      {/each}
-    </tr>
-  </thead>
-
-  <tbody>
-    {#each times as time}
+<div>
+  <table>
+    <thead>
       <tr>
-        <th>{time}</th>
-
+        <th>&nbsp;</th>
         {#each days as day}
-          <td>
-            {#each shifts[day][time] as name}
-              <p>{name}</p>
-            {/each}
-          </td>
+          <th>{day}</th>
         {/each}
       </tr>
-    {/each}
-  </tbody>
-</table>
+    </thead>
+
+    <tbody>
+      {#each times as time}
+        <tr>
+          <th>{time}</th>
+
+          {#each days as day}
+            <td>
+              {#each shifts[day][time] as name}
+                <p>{name}</p>
+              {/each}
+            </td>
+          {/each}
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+</div>
 
 <style>
+div {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
   min-width: 35em;

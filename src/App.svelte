@@ -24,14 +24,6 @@ let problem;
 let iterations = 400;
 let running = false;
 
-promises.then(([people, shiftSheet, constraints]) => {
-	problem = solver(people, shiftSheet, constraints);
-	problem.initialize();
-	shifts = problem.shifts;
-	iterate();
-});
-
-
 async function iterate () {
 	running = true;
 	for (let i = 0; i < iterations; i++) {
@@ -47,6 +39,13 @@ function restart () {
 	shifts = problem.shifts;
 	iterate();
 }
+
+promises.then(([people, shiftSheet, constraints]) => {
+	problem = solver(people, shiftSheet, constraints);
+	problem.initialize();
+	shifts = problem.shifts;
+	iterate();
+});
 </script>
 
 <main>
