@@ -11,6 +11,8 @@ html, body {
 }
 
 body {
+	display: flex;
+	flex-direction: column;
 	color: #333;
 	margin: 0;
 	padding: 8px;

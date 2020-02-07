@@ -15,16 +15,17 @@ let error = false;
 <style>
 .loader {
   display: flex;
+  align-items: baseline;
 }
 
 .loading {
-  animation: fader 250ms linear infinite alternate-reverse;
+  animation: fader 500ms linear infinite alternate-reverse;
   color: gray;
 }
 
 .dot {
-  width: 1.5em;
-  height: 1.5em;
+  width: .75em;
+  height: .75em;
   border-radius: 50%;
   background-color: lightgray;
 }
