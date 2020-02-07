@@ -22,43 +22,37 @@ function getHeaders (shifts) {
 </script>
 
 
-<div>
-  <table>
-    <thead>
+<table>
+  <thead>
+    <tr>
+      <th><slot></slot></th>
+      {#each days as day}
+        <th>{day}</th>
+      {/each}
+    </tr>
+  </thead>
+
+  <tbody>
+    {#each times as time}
       <tr>
-        <th>&nbsp;</th>
+        <th>{time}</th>
+
         {#each days as day}
-          <th>{day}</th>
+          <td>
+            {#each shifts[day][time] as name}
+              <p>{name}</p>
+            {/each}
+          </td>
         {/each}
       </tr>
-    </thead>
-
-    <tbody>
-      {#each times as time}
-        <tr>
-          <th>{time}</th>
-
-          {#each days as day}
-            <td>
-              {#each shifts[day][time] as name}
-                <p>{name}</p>
-              {/each}
-            </td>
-          {/each}
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-</div>
+    {/each}
+  </tbody>
+</table>
 
 <style>
-div {
-  overflow-x: auto;
-}
-
 table {
   width: 100%;
-  min-width: 35em;
+  min-width: 40em;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -77,6 +71,7 @@ tbody th {
 
 td, th {
   padding: .5em;
+  overflow: hidden;
 }
 
 thead {

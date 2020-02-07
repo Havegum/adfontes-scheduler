@@ -4,6 +4,7 @@ import Loader from './Loader.svelte';
 import Schedule from './Schedule.svelte';
 import solver from './solver.js';
 import sleep from './sleep.js';
+import { fade } from 'svelte/transition';
 
 const peopleURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub?gid=0&single=true&output=tsv";
 const shiftsURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub?gid=1385025767&single=true&output=tsv";
@@ -65,13 +66,16 @@ promises.then(([people, shiftSheet, constraints]) => {
 		</div>
 
 	{:then data}
-		<h2>Schedule some shifts!</h2>
-		<div class="controls">
-			<button on:click={restart} disabled={running}>{running ? 'scheduling ...' : 'Rerun!'}</button>
+		<!-- <h2>Schedule some shifts!</h2> -->
+		<!-- <div class="controls"> -->
 			<!-- <button class="secondary" on:click={restart} disabled={running}>Restart</button> -->
 			<!-- <label for="iterations"><input id="iterations" bind:value={iterations} type="range" min="10" max="100" step="1"/> Iterations: {iterations}</label> -->
+		<!-- </div> -->
+		<div class="table" in:fade={{ duration: 100 }}>
+			<Schedule {shifts}>
+				<button on:click={restart} disabled={running}>{running ? 'scheduling' : 'Rerun!'}</button>
+			</Schedule>
 		</div>
-		<Schedule {shifts} />
 
 	{:catch err}
 		<h2>Error loading spreadsheets</h2>
@@ -92,7 +96,8 @@ promises.then(([people, shiftSheet, constraints]) => {
 <style lang="scss">
 main {
 	position: relative;
-  height: 100%;
+  height: auto;
+	min-height: 10%;
   display: flex;
   flex-direction: column;
 	max-width: 65em;
@@ -108,7 +113,7 @@ main {
 		margin: 1em auto;
 		border-radius: 3px;
 		box-shadow: 0 2px 4px #0002;
-		height: calc(100% - 2em);
+		min-height: calc(100% - 2em);
 	}
 }
 
@@ -125,15 +130,6 @@ section {
 	flex: 1 0 1em;
 }
 
-.controls {
-	display: flex;
-	align-items: center;
-
-	* + * {
-		margin-left: .5em;
-	}
-}
-
 .loaders {
 	display: flex;
 	flex-direction: row;
@@ -147,12 +143,19 @@ section {
 	}
 }
 
+.table {
+  overflow-x: auto;
+	flex-shrink: 0;
+}
+
 button {
 	cursor: pointer;
 	background-color: #4243b6;
 	color: white;
-	border: none;
-	width: 13ch;
+	margin: 0;
+	font-size: 1em;
+	width: 11ch;
+	overflow: hidden;
 	border-radius: .25em;
 	border: 2px solid #4243b6;
 

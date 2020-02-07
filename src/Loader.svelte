@@ -28,6 +28,7 @@ let error = false;
   height: .75em;
   border-radius: 50%;
   background-color: lightgray;
+  transition: background-color 200ms;
 }
 
 .loaded {
