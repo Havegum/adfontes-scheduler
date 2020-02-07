@@ -1,34 +1,5 @@
-# Svelte + SCSS template
+# Ad fontes shift scheduler
 
-This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/havegum/svelte.
+This project poses the scheduling of shifts at the Ad fontes bar as a constraint satisfaction problem.
 
-To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
-
-```bash
-npx degit havegum/svelte svelte-app
-cd svelte-app
-```
-
-*Note that you will need to have [Node.js](https://nodejs.org) installed.*
-
-##  Customizations
-
-This project comes with SASS-support, and mutes circular dependency warnings for imported packages.
-
-
-## Get started
-
-Install the dependencies...
-
-```bash
-cd svelte-app
-npm install
-```
-
-...then start [Rollup](https://rollupjs.org):
-
-```bash
-npm run dev
-```
-
-Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
+The scheduling is solved by enforcing domain consistency, generating a full random assignment, then iteratively improving each variable to optimize the fit.

@@ -52,12 +52,17 @@ function getHeaders (shifts) {
 <style>
 table {
   width: 100%;
+  min-width: 35em;
   border-collapse: collapse;
   table-layout: fixed;
 }
 
 thead th {
   text-align: left;
+}
+
+thead th:first-child {
+  width: 12ch;
 }
 
 tbody th {
@@ -83,5 +88,13 @@ tbody tr:nth-child(2n - 1) {
 thead tr,
 tbody tr:nth-child(2n) {
   background: #f8f8f8;
+}
+
+p {
+  line-height: 1em;
+}
+
+p + p {
+  margin-top: 0.75em;
 }
 </style>

@@ -28,8 +28,8 @@ promises.then(([people, shiftSheet, constraints]) => {
 	problem = solver(people, shiftSheet, constraints);
 	problem.initialize();
 	shifts = problem.shifts;
+	iterate();
 });
-
 
 
 async function iterate () {
@@ -37,7 +37,7 @@ async function iterate () {
 	for (let i = 0; i < iterations; i++) {
 		problem.iterate();
 		shifts = problem.shifts;
-		if (i % 10 == 0) await sleep(1)
+		await sleep(1)
 	}
 	running = false;
 }
@@ -45,62 +45,85 @@ async function iterate () {
 function restart () {
 	problem.initialize();
 	shifts = problem.shifts;
+	iterate();
 }
 </script>
 
-<section>
-	<h1>Ad fontes shift scheduler</h1>
-	<p class="byline">Put together very ad hoc by Halvard Vegum</p>
-	<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0/edit?usp=sharing">this spreadsheet</a></p>
-</section>
+<main>
+	<section>
+		<h1>Ad fontes shift scheduler</h1>
+		<p class="byline">Put together very ad hoc by Halvard Vegum</p>
+		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0/edit?usp=sharing">this spreadsheet</a></p>
+	</section>
 
 
-{#await promises}
-	<h2>Loading spreadsheets</h2>
-	<div class="loaders">
-		<Loader promise={peoplePromise}>People</Loader>
-		<Loader promise={shiftsPromise}>Shifts</Loader>
-		<Loader promise={constraintsPromise}>Can't work</Loader>
-	</div>
+	{#await promises}
+		<h2>Loading spreadsheets</h2>
+		<div class="loaders">
+			<Loader promise={peoplePromise}>People</Loader>
+			<Loader promise={shiftsPromise}>Shifts</Loader>
+			<Loader promise={constraintsPromise}>Can't work</Loader>
+		</div>
 
-{:then data}
-	<h2>Schedule some shifts!</h2>
-	<div class="controls">
-		<button on:click={iterate} disabled={running}>Run!</button>
-		<button class="secondary" on:click={restart} disabled={running}>Restart</button>
-		<label for="iterations"><input id="iterations" bind:value={iterations} type="range" min="10" max="1000" step="10"/> Iterations: {iterations}</label>
-	</div>
-	<Schedule {shifts} />
+	{:then data}
+		<h2>Schedule some shifts!</h2>
+		<div class="controls">
+			<button on:click={restart} disabled={running}>{running ? 'scheduling ...' : 'Rerun!'}</button>
+			<!-- <button class="secondary" on:click={restart} disabled={running}>Restart</button> -->
+			<!-- <label for="iterations"><input id="iterations" bind:value={iterations} type="range" min="10" max="100" step="1"/> Iterations: {iterations}</label> -->
+		</div>
+		<Schedule {shifts} />
 
-{:catch err}
-	<h2>Error loading spreadsheets</h2>
-	<div class="loaders">
-		<Loader promise={peoplePromise}>People</Loader>
-		<Loader promise={shiftsPromise}>Shifts</Loader>
-		<Loader promise={constraintsPromise}>Can't work</Loader>
-	</div>
-{/await}
+	{:catch err}
+		<h2>Error loading spreadsheets</h2>
+		<div class="loaders">
+			<Loader promise={peoplePromise}>People</Loader>
+			<Loader promise={shiftsPromise}>Shifts</Loader>
+			<Loader promise={constraintsPromise}>Can't work</Loader>
+		</div>
+	{/await}
 
-<footer>
-	<p>By <a href="https://halvard.vegum.no/">Halvard Vegum</a> · <a href="https://twitter.com/Havegum">@Havegum</a> · Project repo</p>
-</footer>
+	<div class="spacer"></div>
+
+	<footer>
+		<p>By <a href="https://halvard.vegum.no/">Halvard Vegum</a> · <a href="https://twitter.com/Havegum">@Havegum</a> · <a href="https://github.com/Havegum/adfontes-scheduler">project repo</a></p>
+	</footer>
+</main>
 
 <style lang="scss">
-section {
-	h1 {
-		font-size: 2em;
+main {
+	position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+	max-width: 65em;
+	margin: 0 auto;
+	background-color: white;
+	padding: 8px;
+
+	@media screen and (min-width: 600px) {
+		padding: 1em;
 	}
-	margin-bottom: 1em;
+
+	@media screen and (min-width: 1024px) {
+		margin: 1em auto;
+		border-radius: 3px;
+		box-shadow: 0 2px 4px #0002;
+		height: calc(100% - 2em);
+	}
 }
 
-footer {
-	flex-grow: 1;
-	position: relative;
+section {
+	margin-bottom: 2em;
 
-	p {
-		position: absolute;
-		bottom: 0;
+	h1 {
+		font-size: 2em;
+		color: #393d91;
 	}
+}
+
+.spacer {
+	flex: 1 0 1em;
 }
 
 .controls {
@@ -159,9 +182,10 @@ button:disabled {
 	cursor: not-allowed;
 	background-color: lightgray;
 	border: 2px solid lightgray;
-	color: black;
+	color: #555;
+	font-style: italic;
 
-	animation: fader 500ms linear infinite alternate-reverse;
+	animation: fader 500ms ease-in-out infinite alternate-reverse;
 }
 
 @keyframes fader {
