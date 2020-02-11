@@ -23,15 +23,18 @@ let promises = Promise.all([
 let shifts;
 let problem;
 let iterations = 400;
+let i = 0;
 let running = false;
 
 async function iterate () {
 	running = true;
-	for (let i = 0; i < iterations; i++) {
-		problem.iterate();
+	for (i = 0; i < iterations; i++) {
+		problem.iterateSimulatedAnnealing();
+		problem.iterateLocalBest();
 		shifts = problem.shifts;
 		await sleep(1)
 	}
+	problem.iterGreed(); // Greed is good?
 	running = false;
 }
 
@@ -56,7 +59,6 @@ promises.then(([people, shiftSheet, constraints]) => {
 		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0/edit?usp=sharing">this spreadsheet</a></p>
 	</section>
 
-
 	{#await promises}
 		<h2>Loading spreadsheets</h2>
 		<div class="loaders">
@@ -66,14 +68,12 @@ promises.then(([people, shiftSheet, constraints]) => {
 		</div>
 
 	{:then data}
-		<!-- <h2>Schedule some shifts!</h2> -->
-		<!-- <div class="controls"> -->
-			<!-- <button class="secondary" on:click={restart} disabled={running}>Restart</button> -->
-			<!-- <label for="iterations"><input id="iterations" bind:value={iterations} type="range" min="10" max="100" step="1"/> Iterations: {iterations}</label> -->
-		<!-- </div> -->
 		<div class="table" in:fade={{ duration: 100 }}>
 			<Schedule {shifts}>
-				<button on:click={restart} disabled={running}>{running ? 'scheduling' : 'Rerun!'}</button>
+				<button on:click={restart} disabled={running}>
+					<span>{running ? 'scheduling' : 'Rerun!'}</span>
+					<div class="iteration-loader" style="width: {100 * i / iterations}%"></div>
+				</button>
 			</Schedule>
 		</div>
 
@@ -89,7 +89,7 @@ promises.then(([people, shiftSheet, constraints]) => {
 	<div class="spacer"></div>
 
 	<footer>
-		<p>By <a href="https://halvard.vegum.no/">Halvard Vegum</a> · <a href="https://twitter.com/Havegum">@Havegum</a> · <a href="https://github.com/Havegum/adfontes-scheduler">project repo</a></p>
+		<p>By <a href="mailto:halvard.vegum+adfontes@gmail.com">Halvard Vegum</a> · <a href="https://twitter.com/Havegum">@Havegum</a> · <a href="https://github.com/Havegum/adfontes-scheduler">project repo</a></p>
 	</footer>
 </main>
 
@@ -97,7 +97,7 @@ promises.then(([people, shiftSheet, constraints]) => {
 main {
 	position: relative;
   height: auto;
-	min-height: 10%;
+	min-height: 100%;
   display: flex;
   flex-direction: column;
 	max-width: 65em;
@@ -110,10 +110,8 @@ main {
 	}
 
 	@media screen and (min-width: 1024px) {
-		margin: 1em auto;
 		border-radius: 3px;
 		box-shadow: 0 2px 4px #0002;
-		min-height: calc(100% - 2em);
 	}
 }
 
@@ -149,6 +147,7 @@ section {
 }
 
 button {
+	position: relative;
 	cursor: pointer;
 	background-color: #4243b6;
 	color: white;
@@ -167,6 +166,15 @@ button {
 	&:active {
 		background-color: #292d7e;
 		border: 2px solid #292d7e;
+	}
+
+	&:focus {
+		outline: 2px;
+	}
+
+	span {
+		position: relative;
+		z-index: 1;
 	}
 }
 
@@ -187,7 +195,23 @@ button:disabled {
 	color: #555;
 	font-style: italic;
 
-	animation: fader 500ms ease-in-out infinite alternate-reverse;
+	// animation: fader 500ms ease-in-out infinite alternate-reverse;
+}
+
+.iteration-loader {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 0;
+	background-color: white;
+	opacity: 1;
+	transition: opacity 350ms ease-out;
+}
+
+button:not(:disabled) .iteration-loader {
+	opacity: 0;
 }
 
 @keyframes fader {

@@ -74,6 +74,10 @@ td, th {
   overflow: hidden;
 }
 
+tbody tr {
+  height: 6em;
+}
+
 thead {
   border-bottom: 2px solid #ccc;
 }
