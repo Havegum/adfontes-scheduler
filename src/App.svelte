@@ -30,6 +30,9 @@ async function iterate () {
 	running = true;
 	for (i = 0; i < iterations; i++) {
 		problem.iterateSimulatedAnnealing();
+		// For reasons I don't quite understand, using both iteration models
+		// together got better results quicker. Maybe the simulated annealing
+		// parameters could be tweaked in the future, but this also just works ...
 		problem.iterateLocalBest();
 		shifts = problem.shifts;
 		await sleep(1)
