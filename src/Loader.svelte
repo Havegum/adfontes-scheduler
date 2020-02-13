@@ -19,7 +19,7 @@ let error = false;
 }
 
 .loading {
-  animation: fader 500ms linear infinite alternate-reverse;
+  animation: fader 500ms ease-in-out infinite alternate-reverse;
   color: gray;
 }
 
@@ -41,6 +41,6 @@ let error = false;
 
 @keyframes fader {
   from { opacity: 1 }
-  to { opacity: 0.66 }
+  to { opacity: 0.4 }
 }
 </style>

@@ -75,7 +75,15 @@ td, th {
 }
 
 tbody tr {
-  height: 6em;
+  height: 7.75em;
+}
+
+@media screen and (min-width: 600px) {
+  tbody tr { height: 7em }
+}
+
+@media screen and (min-width: 1024px) {
+  tbody tr { height: 6em }
 }
 
 thead {
@@ -87,12 +95,12 @@ tbody th:first-child {
 }
 
 tbody tr:nth-child(2n - 1) {
-  background: #ececec;
+  background: #ebebea;
 }
 
 thead tr,
 tbody tr:nth-child(2n) {
-  background: #f8f8f8;
+  background: #f4f4f3;
 }
 
 p {

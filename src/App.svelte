@@ -1,73 +1,79 @@
 <script>
+import { fade } from 'svelte/transition';
 import { tsvParse } from 'd3-dsv';
 import Loader from './Loader.svelte';
 import Schedule from './Schedule.svelte';
 import solver from './solver.js';
-import sleep from './sleep.js';
-import { fade } from 'svelte/transition';
 
-const peopleURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub?gid=0&single=true&output=tsv";
-const shiftsURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub?gid=1385025767&single=true&output=tsv";
-const constraintsURL ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub?gid=517938983&single=true&output=tsv";
 
-let peoplePromise = fetch(peopleURL).then(d => d.text()).then(tsvParse);
-let constraintsPromise = fetch(constraintsURL).then(d => d.text()).then(tsvParse);
-let shiftsPromise = fetch(shiftsURL).then(d => d.text()).then(tsvParse);
-
-let promises = Promise.all([
-	peoplePromise,
-	shiftsPromise,
-	constraintsPromise
-]);
-
-let shifts;
-let problem;
-let iterations = 400;
-let i = 0;
+let shifts, problem, i;
+const iterations = 4000;
 let running = false;
 
-async function iterate () {
+// Fetch data for people, shifts, constraints
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub";
+const fetchAndParse = id => fetch(`${sheetURL}?gid=${id}&single=true&output=tsv`)
+	.then(d => d.text())
+	.then(tsvParse);
+
+const sheetIDs = ['0', '1385025767', '517938983'];
+let [ pPromise, sPromise, cPromise ] = sheetIDs.map(fetchAndParse);
+let promises = Promise.all([pPromise, sPromise, cPromise]);
+
+promises.then(input => {
+	problem = solver(...input);
+	problem.initialize();
+	shifts = problem.shifts;
+	iterate();
+});
+
+
+function iterate() {
 	running = true;
-	for (i = 0; i < iterations; i++) {
-		problem.iterateSimulatedAnnealing();
-		// For reasons I don't quite understand, using both iteration models
-		// together got better results quicker. Maybe the simulated annealing
-		// parameters could be tweaked in the future, but this also just works ...
-		problem.iterateLocalBest();
-		shifts = problem.shifts;
-		await sleep(1)
+	i = 0;
+
+	function end () {
+		problem.iterGreed();
+		running = false;
 	}
-	problem.iterGreed(); // Greed is good?
-	running = false;
+
+	window.requestAnimationFrame(function step () {
+		// Repaints are expensive so we'll only do them every 100th iteration
+		for (let j = 0; j < 100; j++) {
+			// For reasons I don't quite understand, jointly using both models got
+			// better results in fewer iterations. Maybe the simulated annealing
+			// parameters could be tweaked in the future, but this also just works ...
+			problem.iterateSimulatedAnnealing();
+			problem.iterateLocalBest();
+			i++;
+		}
+		shifts = problem.shifts;
+		window.requestAnimationFrame(i < iterations ? step : end);
+	});
 }
+
 
 function restart () {
 	problem.initialize();
 	shifts = problem.shifts;
 	iterate();
 }
-
-promises.then(([people, shiftSheet, constraints]) => {
-	problem = solver(people, shiftSheet, constraints);
-	problem.initialize();
-	shifts = problem.shifts;
-	iterate();
-});
 </script>
+
+
 
 <main>
 	<section>
-		<h1>Ad fontes shift scheduler</h1>
-		<p class="byline">Put together very ad hoc by Halvard Vegum</p>
+		<h1>Ad fontes shift&nbsp;scheduler</h1>
 		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0/edit?usp=sharing">this spreadsheet</a></p>
 	</section>
 
 	{#await promises}
 		<h2>Loading spreadsheets</h2>
 		<div class="loaders">
-			<Loader promise={peoplePromise}>People</Loader>
-			<Loader promise={shiftsPromise}>Shifts</Loader>
-			<Loader promise={constraintsPromise}>Can't work</Loader>
+			<Loader promise={pPromise}>People</Loader>
+			<Loader promise={sPromise}>Shifts</Loader>
+			<Loader promise={cPromise}>Can't work</Loader>
 		</div>
 
 	{:then data}
@@ -83,18 +89,20 @@ promises.then(([people, shiftSheet, constraints]) => {
 	{:catch err}
 		<h2>Error loading spreadsheets</h2>
 		<div class="loaders">
-			<Loader promise={peoplePromise}>People</Loader>
-			<Loader promise={shiftsPromise}>Shifts</Loader>
-			<Loader promise={constraintsPromise}>Can't work</Loader>
+			<Loader promise={pPromise}>People</Loader>
+			<Loader promise={sPromise}>Shifts</Loader>
+			<Loader promise={cPromise}>Can't work</Loader>
 		</div>
 	{/await}
 
 	<div class="spacer"></div>
 
 	<footer>
-		<p>By <a href="mailto:halvard.vegum+adfontes@gmail.com">Halvard Vegum</a> · <a href="https://twitter.com/Havegum">@Havegum</a> · <a href="https://github.com/Havegum/adfontes-scheduler">project repo</a></p>
+		<p>By <a href="mailto:halvard.vegum+adfontes@gmail.com">Halvard Vegum</a> · <a href="https://twitter.com/Havegum">@Havegum</a> · <a href="https://github.com/Havegum/adfontes-scheduler">project&nbsp;repo</a></p>
 	</footer>
 </main>
+
+
 
 <style lang="scss">
 main {
@@ -122,6 +130,8 @@ section {
 	margin-bottom: 2em;
 
 	h1 {
+		line-height: 1.1;
+		margin-bottom: .2em;
 		font-size: 2em;
 		color: #393d91;
 	}
@@ -197,8 +207,6 @@ button:disabled {
 	border: 2px solid lightgray;
 	color: #555;
 	font-style: italic;
-
-	// animation: fader 500ms ease-in-out infinite alternate-reverse;
 }
 
 .iteration-loader {
