@@ -14,7 +14,13 @@ The scheduling is solved in four steps:
 ![People: A list of people available for taking shifts and how many they should ideally be assigned. Shifts: A list of shifts, and how many people are needed for them. You can add and change the names of these. Just make sure same days and times have the same name. The order of days and times will on this site will match the spreadsheet. Can’t work: A list of people and the shifts they can’t work.](https://raw.githubusercontent.com/Havegum/adfontes-scheduler/master/src/explainer.png)
 
 ## Building and developing
-This project was created with [Svelte](https://raw.githubusercontent.com/Havegum/adfontes-scheduler/master/src/explainer.png). Use yarn (or npm) to install and run after downloading with `yarn install` and `yarn dev`. The site should now be available on [](localhost:5000), rebuilding and refreshing automatically whenever you change things in the `src`-folder.
+This project was created with [Svelte](https://raw.githubusercontent.com/Havegum/adfontes-scheduler/master/src/explainer.png). Use yarn (or npm) to install and run after downloading like so:
+```bash
+yarn install
+yarn dev
+```
+The site should now be available on [localhost:5000](localhost:5000), rebuilding and refreshing automatically whenever you change things in the `src`-folder.
+
 
 
 Running `yarn build` builds the project for production. You can then host the `public`-folder wherever you want.
