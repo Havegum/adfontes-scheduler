@@ -22,20 +22,13 @@ export default {
 	},
 	plugins: [
 		svelte({
-			// enable run-time checks when not in production
 			dev: !production,
-			// we'll extract any component CSS out into
-			// a separate file — better for performance
-			css: css => {
-				css.write('public/bundle.css');
-			},
+			css: css => css.write('public/bundle.css'),
 			preprocess: autoPreprocess()
 		}),
 
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration —
-		// consult the documentation for details:
+		// Resolve external dependencies.
+		// In some cases you'll need additional configuration see:
 		// https://github.com/rollup/rollup-plugin-commonjs
 		resolve({
 			browser: true,
@@ -43,12 +36,9 @@ export default {
 		}),
 		commonjs(),
 
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
 		!production && livereload('public'),
 
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
+		// // 13.02.2020: terser broken. https://github.com/TrySound/rollup-plugin-terser/issues/40
 		// production && terser()
 	],
 	watch: {
