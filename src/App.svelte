@@ -1,17 +1,18 @@
 <script>
-import { fade } from 'svelte/transition';
 import { tsvParse } from 'd3-dsv';
-import Loader from './Loader.svelte';
+import { fade } from 'svelte/transition';
 import Schedule from './Schedule.svelte';
+import Loader from './Loader.svelte';
 import solver from './solver.js';
 
+export let env;
+const { sheetURL, dev } = env;
 
 let shifts, problem, i;
 const iterations = 4000;
 let running = false;
 
 // Fetch data for people, shifts, constraints
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub";
 const fetchAndParse = id => fetch(`${sheetURL}?gid=${id}&single=true&output=tsv`)
 	.then(d => d.text())
 	.then(tsvParse);
@@ -64,7 +65,8 @@ function restart () {
 
 <main>
 	<section>
-		<h1>Ad fontes shift&nbsp;scheduler</h1>
+		<h1>Ad fontes shift&nbsp;scheduler{dev ? '&nbsp;(dev)' : ''}</h1>
+
 		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0/edit?usp=sharing">this spreadsheet</a></p>
 	</section>
 

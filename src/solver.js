@@ -26,6 +26,15 @@ function prepShifts (shiftSheet, domain) {
   return shifts;
 }
 
+function remove (value) {
+  return {
+    from: arr => {
+      let i = arr.indexOf(value);
+      if (i > -1) arr.splice(i, 1);
+    }
+  };
+}
+
 
 // Export
 export default function (peopleSheet, shiftSheet, domainConstraints) {
@@ -37,9 +46,18 @@ export default function (peopleSheet, shiftSheet, domainConstraints) {
   // Enforce domain consistency by getting rid
   // of values that can never be a solution
   domainConstraints.forEach(({ name, day, time }) => {
-    const domain = shifts[day][time].domain;
-    let i = domain.indexOf(name);
-    if (i > -1) domain.splice(i, 1);
+    const makeConsistent = (day, time) => remove(name).from(shifts[day][time].domain);
+
+    if (!time)
+      for (let time in shifts[day])
+        makeConsistent(day, time);
+
+    else if (!day)
+      for (let day in shifts)
+        makeConsistent(day, time);
+
+    else
+      makeConsistent(day, time);
   });
 
 
