@@ -1,8 +1,8 @@
 import App from './App.svelte';
 
 const dev = process.env.dev;
-const sheetURL = process.env.sheetURL;
-const env = { dev, sheetURL };
+const sheetId = process.env.sheetId;
+const env = { dev, sheetId };
 
 const app = new App({
 	target: document.body,

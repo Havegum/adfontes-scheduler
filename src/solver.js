@@ -37,7 +37,7 @@ function remove (value) {
 
 
 // Export
-export default function (peopleSheet, shiftSheet, domainConstraints) {
+export default function solver (peopleSheet, shiftSheet, domainConstraints) {
   const names = peopleSheet.map(person => person.name);
 
   // Problem variable structure

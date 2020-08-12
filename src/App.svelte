@@ -1,24 +1,23 @@
 <script>
-import { tsvParse } from 'd3-dsv';
 import { fade } from 'svelte/transition';
-import Schedule from './Schedule.svelte';
-import Loader from './Loader.svelte';
+
+import fetchAndParse from './dataFetcher.js';
 import solver from './solver.js';
 
+import Schedule from './Schedule.svelte';
+import Loader from './Loader.svelte';
+import Error from './Error.svelte';
+
 export let env;
-const { sheetURL, dev } = env;
+const { sheetId, dev } = env;
 
 let shifts, problem, i;
 const iterations = 4000;
 let running = false;
 
 // Fetch data for people, shifts, constraints
-const fetchAndParse = id => fetch(`${sheetURL}?gid=${id}&single=true&output=tsv`)
-	.then(d => d.text())
-	.then(tsvParse);
-
-const sheetIDs = ['0', '1385025767', '517938983'];
-let [ pPromise, sPromise, cPromise ] = sheetIDs.map(fetchAndParse);
+const sheetNumbers = [1, 2, 3];
+let [ pPromise, sPromise, cPromise ] = sheetNumbers.map(fetchAndParse(sheetId));
 let promises = Promise.all([pPromise, sPromise, cPromise]);
 
 promises.then(input => {
@@ -27,7 +26,6 @@ promises.then(input => {
 	shifts = problem.shifts;
 	iterate();
 });
-
 
 function iterate() {
 	running = true;
@@ -41,7 +39,7 @@ function iterate() {
 	window.requestAnimationFrame(function step () {
 		// Repaints are expensive so we'll only do them every 100th iteration
 		for (let j = 0; j < 100; j++) {
-			// For reasons I don't quite understand, jointly using both models got
+			// For reasons I don't quite understand, using both models got
 			// better results in fewer iterations. Maybe the simulated annealing
 			// parameters could be tweaked in the future, but this also just works ...
 			problem.iterateSimulatedAnnealing();
@@ -52,7 +50,6 @@ function iterate() {
 		window.requestAnimationFrame(i < iterations ? step : end);
 	});
 }
-
 
 function restart () {
 	problem.initialize();
@@ -65,9 +62,9 @@ function restart () {
 
 <main>
 	<section>
-		<h1>Ad fontes shift&nbsp;scheduler{dev ? '&nbsp;(dev)' : ''}</h1>
+		<h1>Ad fontes shift&nbsp;scheduler{@html dev ? '&nbsp;(dev)' : ''}</h1>
 
-		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0/edit?usp=sharing">this spreadsheet</a></p>
+		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/{sheetId}/edit?usp=sharing">this spreadsheet</a></p>
 	</section>
 
 	{#await promises}
@@ -95,6 +92,8 @@ function restart () {
 			<Loader promise={sPromise}>Shifts</Loader>
 			<Loader promise={cPromise}>Can't work</Loader>
 		</div>
+		<Error {err} />
+
 	{/await}
 
 	<div class="spacer"></div>

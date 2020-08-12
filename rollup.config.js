@@ -28,9 +28,9 @@ export default {
 			process: JSON.stringify({
 				env: {
 					dev: !production,
-					sheetURL: production
-						? "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-PZy7lDNzIKt9qxguH5QGCRCQajbEiodCHfaPotQOo2bz5GbCYehtSxJKKELegyClx6cA0i44N0Q0/pub"
-						: process.env.DEV_SHEET_URL
+					sheetId: production
+						? "1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0"
+						: process.env.DEV_SHEET_ID
 				}
 			})
 		}),
