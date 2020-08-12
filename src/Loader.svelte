@@ -7,8 +7,8 @@ let loading = true;
 let error = false;
 </script>
 
-<div class="loader" class:loading>
-  <div class="dot" class:loaded={!loading} class:error></div>
+<div class="loader" class:loading class:error>
+  <div class="dot" class:loaded={!loading}/>
   <p><slot>Sheet</slot></p>
 </div>
 
@@ -36,7 +36,12 @@ let error = false;
 }
 
 .error {
-  background-color: red;
+  animation: none;
+  color: #d93914;
+}
+
+.error .dot{
+  background-color: #d93914;
 }
 
 @keyframes fader {
