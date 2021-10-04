@@ -9,15 +9,15 @@ import Loader from './Loader.svelte';
 import Error from './Error.svelte';
 
 export let env;
-const { sheetId, dev } = env;
+const { sheetId, dev, apiKey } = env;
 
 let shifts, problem, i;
 const iterations = 4000;
 let running = false;
 
 // Fetch data for people, shifts, constraints
-const sheetNumbers = [1, 2, 3];
-let [ pPromise, sPromise, cPromise ] = sheetNumbers.map(fetchAndParse(sheetId));
+const sheetNames = ['People', 'Shifts', 'Can\'t work'];
+let [ pPromise, sPromise, cPromise ] = sheetNames.map(fetchAndParse({ sheetId, apiKey }));
 let promises = Promise.all([pPromise, sPromise, cPromise]);
 
 promises.then(input => {
@@ -64,7 +64,7 @@ function restart () {
 	<section>
 		<h1>Ad fontes shift&nbsp;scheduler{@html dev ? '&nbsp;(dev)' : ''}</h1>
 
-		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/{sheetId}/edit?usp=sharing">this spreadsheet</a></p>
+		<p>Fetches data from <a href="https://docs.google.com/spreadsheets/d/{sheetId}/edit">this spreadsheet</a></p>
 	</section>
 
 	{#await promises}
@@ -96,6 +96,13 @@ function restart () {
 
 	{/await}
 
+
+	<details class="explainer">
+		<summary><h2>How to use</h2></summary>
+		<p>Fill the sheet in the manner described by the following illustration. For more information <a href="https://github.com/Havegum/adfontes-scheduler">see this readme</a>.</p>
+		<img src="explainer.png" alt="">
+	</details>
+	<div class="spacer"></div>
 	<div class="spacer"></div>
 
 	<footer>
@@ -105,7 +112,7 @@ function restart () {
 
 
 
-<style lang="scss">
+<style>
 main {
 	position: relative;
   height: auto;
@@ -117,11 +124,15 @@ main {
 	background-color: white;
 	padding: 8px;
 
-	@media screen and (min-width: 600px) {
+}
+@media screen and (min-width: 600px) {
+	main {
 		padding: 1em;
 	}
+}
 
-	@media screen and (min-width: 1024px) {
+@media screen and (min-width: 1024px) {
+	main {
 		border-radius: 3px;
 		box-shadow: 0 2px 4px #0002;
 	}
@@ -130,12 +141,13 @@ main {
 section {
 	margin-bottom: 2em;
 
-	h1 {
-		line-height: 1.1;
-		margin-bottom: .2em;
-		font-size: 2em;
-		color: #393d91;
-	}
+}
+
+h1 {
+	line-height: 1.1;
+	margin-bottom: .2em;
+	font-size: 2em;
+	color: #393d91;
 }
 
 .spacer {
@@ -146,13 +158,13 @@ section {
 	display: flex;
 	flex-direction: row;
 
-	:global(div) {
-		margin-right: 0.2em;
-	}
+}
+.loaders :global(div) {
+	margin-right: 0.2em;
+}
 
-	:global(div + div) {
-		margin-left: 1em;
-	}
+.loaders :global(div + div) {
+	margin-left: 1em;
 }
 
 .table {
@@ -172,35 +184,35 @@ button {
 	border-radius: .25em;
 	border: 2px solid #4243b6;
 
-	&:hover {
-		background-color: #393d91;
-		border: 2px solid #393d91;
-	}
-
-	&:active {
-		background-color: #292d7e;
-		border: 2px solid #292d7e;
-	}
-
-	&:focus {
-		outline: 2px;
-	}
-
-	span {
-		position: relative;
-		z-index: 1;
-	}
+}
+button:hover {
+	background-color: #393d91;
+	border: 2px solid #393d91;
+}
+button:active {
+	background-color: #292d7e;
+	border: 2px solid #292d7e;
 }
 
-.secondary {
+button:focus {
+	outline: 2px;
+}
+
+button span {
+	position: relative;
+	z-index: 1;
+}
+
+/* .secondary {
 	background-color: transparent;
 	color: #4243b6;
 
-	&:hover,
-	&:active {
-		color: white;
-	}
 }
+
+.secondary:hover,
+.secondary:active {
+	color: white;
+} */
 
 button:disabled {
 	cursor: not-allowed;
@@ -224,6 +236,42 @@ button:disabled {
 
 button:not(:disabled) .iteration-loader {
 	opacity: 0;
+}
+
+details {
+	margin: 1em -0.5em;
+	padding: 0 .5em;
+}
+
+details summary {
+	margin: 0 -0.5em;
+	padding: .5em;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+details:not([open]) h2 {
+	font-size: 16px;
+	font-weight: normal;
+}
+
+details:not([open]):hover summary {
+	background-color: #f8f8f8;
+}
+
+details h2 {
+	display: inline;
+}
+
+details p {
+	margin-bottom: 8px;
+	font-style: italic;
+}
+
+img {
+	display: block;
+	width: 100%;
+	height: auto;
 }
 
 @keyframes fader {

@@ -1,14 +1,15 @@
+import dotenv from 'dotenv';
+dotenv.config();
+const ENV = process.env;
+
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
-// import { terser } from 'rollup-plugin-terser';
-
+import { terser } from 'rollup-plugin-terser';
 import autoPreprocess from 'svelte-preprocess';
-
 const production = !process.env.ROLLUP_WATCH;
-if (!production) require('dotenv').config();
 
 export default {
 	input: 'src/main.js',
@@ -19,8 +20,8 @@ export default {
 		file: 'public/bundle.js'
 	},
 	onwarn: function (warning, warn) {
-  		if (warning.code === 'CIRCULAR_DEPENDENCY') return;
-  		warn(warning);
+		if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+		warn(warning);
 	},
 	plugins: [
 		// Dev stuff
@@ -28,9 +29,8 @@ export default {
 			process: JSON.stringify({
 				env: {
 					dev: !production,
-					sheetId: production
-						? "1t2cLgwEzOyVZ7JwMY3qtr3HfmKLcG2kzO5udaF7gPb0"
-						: process.env.DEV_SHEET_ID
+					apiKey: production ? ENV.PROD_SHEET_API_KEY : ENV.DEV_SHEET_API_KEY,
+					sheetId: production ? ENV.PROD_SHEET_ID : ENV.DEV_SHEET_ID,
 				}
 			})
 		}),
@@ -53,7 +53,7 @@ export default {
 		!production && livereload('public'),
 
 		// // 13.02.2020: terser broken. https://github.com/TrySound/rollup-plugin-terser/issues/40
-		// production && terser()
+		production && terser()
 	],
 	watch: {
 		clearScreen: false

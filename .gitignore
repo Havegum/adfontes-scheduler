@@ -2,3 +2,5 @@
 node_modules
 public/bundle.*
 .env
+yarn-error.log
+deploy.sh

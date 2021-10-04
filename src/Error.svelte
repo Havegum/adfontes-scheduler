@@ -23,7 +23,7 @@ export let err = {};
     This is an unexpected error, if you're seeing this please send me a message with the following:
   </p>
   <code class="error">
-    {#if err.status !== undefined}
+    {#if err.status !== undefined && err.statusText !== undefined}
       {err.status}: {err.statusText}
     {:else}
       {JSON.stringify(err)}
